@@ -1,10 +1,14 @@
 from typing import List
 import databases
 import sqlalchemy
-from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, Form, Request, status
+from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
+
 import os
 import urllib
 
@@ -12,9 +16,9 @@ import urllib
 
 host_server = os.environ.get('host_server', 'localhost')
 db_server_port = urllib.parse.quote_plus(str(os.environ.get('db_server_port', '5432')))
-database_name = os.environ.get('database_name', 'fastapi')
+database_name = os.environ.get('database_name', 'local_dev')
 db_username = urllib.parse.quote_plus(str(os.environ.get('db_username', 'postgres')))
-db_password = urllib.parse.quote_plus(str(os.environ.get('db_password', 'secret')))
+db_password = urllib.parse.quote_plus(str(os.environ.get('db_password', 'wegwerf_passwort')))
 ssl_mode = urllib.parse.quote_plus(str(os.environ.get('ssl_mode','prefer')))
 DATABASE_URL = 'postgresql://{}:{}@{}:{}/{}?sslmode={}'.format(db_username, db_password, host_server, db_server_port, database_name, ssl_mode)
 
@@ -54,6 +58,9 @@ app.add_middleware(
     allow_headers=["*"]
 )
 app.add_middleware(GZipMiddleware)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
 
 @app.on_event("startup")
 async def startup():
@@ -62,6 +69,28 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     await database.disconnect()
+
+
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    print('Request for index page received')
+    return templates.TemplateResponse('index.html', {"request": request})
+
+@app.get('/favicon.ico')
+async def favicon():
+    file_name = 'favicon.ico'
+    file_path = './static/' + file_name
+    return FileResponse(path=file_path, headers={'mimetype': 'image/vnd.microsoft.icon'})
+
+@app.post('/hello', response_class=HTMLResponse)
+async def hello(request: Request, name: str = Form(...)):
+    if name:
+        print('Request for hello page received with name=%s' % name)
+        return templates.TemplateResponse('hello.html', {"request": request, 'name':name})
+    else:
+        print('Request for hello page received with no name or blank name -- redirecting')
+        return RedirectResponse(request.url_for("index"), status_code=status.HTTP_302_FOUND)
+
 
 @app.post("/notes/", response_model=Note, status_code = status.HTTP_201_CREATED)
 async def create_note(note: NoteIn):
