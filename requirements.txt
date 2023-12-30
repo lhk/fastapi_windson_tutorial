@@ -11,3 +11,4 @@ uvicorn
 websockets
 jinja2
 python-multipart
+sqlmodel
