@@ -13,22 +13,23 @@ import os
 import urllib
 
 from configs.production import DATABASE_URI
-database = databases.Database(DATABASE_URI)
-metadata = sqlalchemy.MetaData()
+print(DATABASE_URI)
+# database = databases.Database(DATABASE_URI)
+# metadata = sqlalchemy.MetaData()
 
-notes = sqlalchemy.Table(
-    "notes",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("text", sqlalchemy.String),
-    sqlalchemy.Column("completed", sqlalchemy.Boolean),
-)
+# notes = sqlalchemy.Table(
+#     "notes",
+#     metadata,
+#     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+#     sqlalchemy.Column("text", sqlalchemy.String),
+#     sqlalchemy.Column("completed", sqlalchemy.Boolean),
+# )
 
-engine = sqlalchemy.create_engine(
-    DATABASE_URI, pool_size=3, max_overflow=0
-)
+# engine = sqlalchemy.create_engine(
+#     DATABASE_URI, pool_size=3, max_overflow=0
+# )
 
-metadata.create_all(engine)
+# metadata.create_all(engine)
 
 
 app = FastAPI(title="REST API using FastAPI PostgreSQL Async EndPoints")
