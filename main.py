@@ -44,7 +44,6 @@ app.add_middleware(GZipMiddleware)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-database = databases.Database(os.environ['AZURE_POSTGRESQL_CONNECTIONSTRING'])
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
