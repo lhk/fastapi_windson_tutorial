@@ -1,4 +1,4 @@
-from configs.production import DATABASE_URI
+from configs.development import DATABASE_URI
 from typing import Optional
 from sqlmodel import Field, SQLModel, Session, select, create_engine
 
@@ -12,6 +12,7 @@ hero_1 = Hero(name="Deadpond")
 hero_2 = Hero(name="Spider-Boy")
 engine = create_engine(DATABASE_URI)
 
+SQLModel.metadata.create_all(engine)
 
 with Session(engine) as session:
     statement = select(Hero).where(Hero.name == "Spider-Boy")

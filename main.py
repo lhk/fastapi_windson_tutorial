@@ -12,7 +12,14 @@ from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
 import os
 import urllib
 
-from configs.production import DATABASE_URI
+import os
+
+# check if AZURE_POSTGRESQL_CONNECTIONSTRING is available
+if 'AZURE_POSTGRESQL_CONNECTIONSTRING' in os.environ:
+    from configs.production import DATABASE_URI
+else:
+    from configs.development import DATABASE_URI
+
 print(DATABASE_URI)
 # database = databases.Database(DATABASE_URI)
 # metadata = sqlalchemy.MetaData()
